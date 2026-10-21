@@ -1,6 +1,5 @@
 
 
-
 def drop_users_table(cursor):
     """ DROP users table """
     cursor.execute("DROP TABLE IF EXISTS users;")
@@ -21,14 +20,12 @@ def create_users_table(cursor):
                    )
     return
 
-
+# def normalise_user_data(user_data):
+#     pass
 
 def insert_user_data(cursor, user_data):
     """ Populate users table with data from users.json file """
     
-    # user_data = load_json_data("./db/data/users.json")
-    # print(user_data)
-
     insert_statement = """
                         INSERT INTO users
                             (name, email, password)
