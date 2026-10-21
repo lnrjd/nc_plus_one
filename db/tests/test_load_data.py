@@ -23,8 +23,7 @@ def test_load_json_data_loads_correctly():
                     "capacity": 60
                 },
                 {
-                    "name": "Newspeak House",
-                    
+                    "name": "Newspeak House",                    
                     "address": "133 Bethnal Green Road, London, E2 7DG",
                     "capacity": 120
                 }]
