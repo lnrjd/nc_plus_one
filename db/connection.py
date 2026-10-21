@@ -6,7 +6,10 @@ from dotenv import load_dotenv
 def get_connection():
 
     ENV = os.getenv("ENV", "development")
-    load_dotenv(ENV)
+    load_dotenv(f".env.{ENV}")
+    
+    if not os.getenv("PGDATABASE"):
+        raise RuntimeError("PGDATABASE not set")
 
     connection = psycopg2.connect()
 
