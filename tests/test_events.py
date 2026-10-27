@@ -12,6 +12,9 @@ from main import app
 def client():
     return TestClient(app)
 
+
+""" Test /events endpoint """
+
 def test_get_events_returns_all_events_and_status_code_200(client):
     response = client.get("/events")
     assert response.status_code == 200

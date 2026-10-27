@@ -6,6 +6,9 @@ events_router = APIRouter(prefix="/events", tags=["events"])
 
 @events_router.get("/")
 def get_events():
+    """ Returns all events ordered by start date/time.
+    If two events start at teh same time, order by location alphabetically
+    """
     conn = get_connection()
     cursor = conn.cursor()
 
