@@ -4,19 +4,22 @@ The seed function is responsible for 3 things:
     2. Rebuilding the table schemas
     3. Inserting the test data
 """
+import os
 from load_data import load_json_data
 from users import *
 from venues import *
 from events import *
 from rsvps import *
 
+directory = "test_data" if os.getenv("ENV", "development") == "test" else "data"
+
 def seed(conn):
 
     # get data to be loaded to database
-    user_data = load_json_data("users.json")
-    venue_data = load_json_data("venues.json")
-    event_data = load_json_data("events.json")
-    rsvp_data = load_json_data("rsvps.json")
+    user_data = load_json_data("users.json", directory)
+    venue_data = load_json_data("venues.json", directory)
+    event_data = load_json_data("events.json", directory)
+    rsvp_data = load_json_data("rsvps.json", directory)
 
    
     with conn.cursor() as cursor:
