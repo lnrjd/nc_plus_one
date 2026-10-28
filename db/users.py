@@ -1,4 +1,8 @@
+import sys
 
+sys.path.append("../nc_plus_one")
+
+from utils.utils import hash_password
 
 def drop_users_table(cursor):
     """ DROP users table """
@@ -12,7 +16,7 @@ def create_users_table(cursor):
                     CREATE TABLE users(
                         id SERIAL PRIMARY KEY
                         , email VARCHAR(255) UNIQUE NOT NULL
-                        , password VARCHAR(255) NOT NULL
+                        , password_hash VARCHAR(255) NOT NULL
                         , name VARCHAR(255) NOT NULL
                         , created_at TIMESTAMPTZ DEFAULT NOW()
                     );
@@ -28,12 +32,12 @@ def insert_user_data(cursor, user_data):
     
     insert_statement = """
                         INSERT INTO users
-                            (name, email, password)
+                            (name, email, password_hash)
                         VALUES
                             (%s, %s, %s);
                         """
 
-    cursor.executemany(insert_statement, [(u["name"], u["email"], u["password"]) for u in user_data])
+    cursor.executemany(insert_statement, [(u["name"], u["email"], hash_password(u["password"])) for u in user_data])
 
     return
 
