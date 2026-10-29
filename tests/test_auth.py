@@ -22,9 +22,9 @@ def test_login_returns_token_payload_includes_user_id_and_expiry(client):
     token = response.json()["access_token"]
     ALGORITHM = "HS512"
     secret = os.getenv("JWT_SECRET")
-    decoded_token = jwt.decode(token, algorithms=ALGORITHM, key=secret)
-    assert jwt.decode(response.json()["access_token"], algorithms=ALGORITHM, key=secret)
-    pass
+    decoded_token = jwt.decode(response.json()["access_token"], algorithms=ALGORITHM, key=secret)
+    assert int(decoded_token["sub"]) == 2
+    
 
 def test_login_returns_400_if_email_missing(client):
     response = client.post("/auth/login", json={"email": "", "password": "password_a"})
