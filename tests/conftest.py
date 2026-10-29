@@ -1,18 +1,30 @@
 import os
 import pytest
 from fastapi.testclient import TestClient
+
+os.environ["ENV"] = "test"
+
 from main import app
 from db.connection import get_connection
 from utils.utils import hash_password
+from db.seed import seed
 
 
-os.environ["ENV"] = "test"
+
 
 @pytest.fixture
 def client():
     return TestClient(app)
 
-    
+
+@pytest.fixture
+def re_seed_database():
+    conn = get_connection()
+    seed(conn)
+    conn.close()
+    return
+
+
 @pytest.fixture
 def sample_user():
     conn = get_connection()
@@ -32,3 +44,6 @@ def sample_user():
     conn.commit()
     cursor.close()
     conn.close()
+
+
+
