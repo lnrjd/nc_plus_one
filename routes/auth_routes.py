@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
-from schemas.schemas import LoginRequest
-from models.users_models import get_user_from_email
+from fastapi import APIRouter, HTTPException, Response
+from schemas.schemas import LoginRequest, RegisterRequest
+from models.users_models import get_user_from_email, insert_new_user
 from utils.utils import verify_password, create_access_token
 
 
@@ -41,4 +41,21 @@ def login(body: LoginRequest):
          )
 
 
+
     
+@auth_router.post("/register")
+def register_new_user(body: RegisterRequest, response: Response):
+
+     new_user = insert_new_user(body.name, body.email, body.password)
+
+     if new_user is None:
+         raise HTTPException(
+              status_code=409
+              , detail= {"code": "CONFLICT", "message": "Email already registered"}
+         )  
+     
+     response.status_code = 201
+     return {"user": new_user}
+
+
+

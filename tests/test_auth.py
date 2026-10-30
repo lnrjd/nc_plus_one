@@ -1,6 +1,8 @@
 import os
 import sys
 import jwt
+from models.users_models import get_user_from_email
+from utils.utils import hash_password
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -52,23 +54,36 @@ def test_login_returns_same_error_if_email_not_found_or_password_incorrect(clien
 
 
 
-def test_register_returns_201_for_valid_input(client):
-    pass
 
-def test_register_creates_new_record_in_users_table_for_valid_input(client):
-    pass
 
-def test_register_creates_new_record_with_hashed_password_for_valid_input(client):
-    pass
+def test_register_returns_201_for_valid_input(client, re_seed_database):
+    response = client.post("/auth/register", json={"name": "user_z", "email": "user_z@example.com", "password": "password_z"})
+    assert response.status_code == 201
 
-def test_register_response_returns_user_with_no_password_included(client):
-    pass
+def test_register_creates_returns_new_user_info_for_valid_input(client, re_seed_database):
+    response = client.post("/auth/register", json={"name": "user_z", "email": "user_z@example.com", "password": "password_z"})
+    assert response.json()["user"]["name"] == "user_z"
+    assert response.json()["user"]["email"] == "user_z@example.com"
 
-def test_register_returns_409_status_code_if_email_already_registered(client):
-    pass
+def test_register_response_returns_user_with_no_password_included(client, re_seed_database):
+    response = client.post("/auth/register", json={"name": "user_z", "email": "user_z@example.com", "password": "password_z"})
+    assert "password" not in response.json()["user"]
 
-def test_register_returns_400_status_code_if_required_field_missing(client):
-    pass
+def test_register_returns_409_status_code_if_email_already_registered(client, re_seed_database):
+    response = client.post("/auth/register", json={"name": "user_a", "email": "user_a@example.com", "password": "password_a"})
+    assert response.status_code == 409
+
+def test_register_returns_400_status_code_if_name_missing(client, re_seed_database):
+    response = client.post("/auth/register", json={"name": None, "email": "user_z@example.com", "password": "password_z"})
+    assert response.status_code == 400
+
+def test_register_returns_400_status_code_if_email_missing(client, re_seed_database):
+    response = client.post("/auth/register", json={"name": "user_z", "email": None, "password": "password_z"})
+    assert response.status_code == 400
+
+def test_register_returns_400_status_code_if_password_missing(client, re_seed_database):
+    response = client.post("/auth/register", json={"name": "user_z", "email": "user_z@example.com", "password": None})
+    assert response.status_code == 400
 
 
 
