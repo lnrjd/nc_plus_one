@@ -1,82 +1,45 @@
 from fastapi import APIRouter, HTTPException
 from db.connection import get_connection
+from models.events_models import select_events, select_single_event
 
 
 events_router = APIRouter(prefix="/events", tags=["events"])
 
 @events_router.get("/")
-def get_events():
-    """ Returns all events ordered by start date/time.
-    If two events start at the same time, order by location alphabetically
+def get_events() -> dict[str, list]:
+    """ Finds title, start and end times and venue information for all events ordered by start date/time.
+    If two events start at the same time, they are ordered by location alphabetically
+
+    Parameters:
+    None
+
+    Returns:
+    title, start and end times, and venue name for all events as a JSON string
     """
-    conn = get_connection()
-    cursor = conn.cursor()
+    events = select_events()
+    return {"events": events}
 
-    cursor.execute(
-            """
-            SELECT
-                e.id
-                , e.title
-                , e.starts_at
-                , e.ends_at
-                , v.name as location
-            FROM events e
-            INNER JOIN venues v ON e.venue_id = v.id
-            ORDER BY e.starts_at, location
-            """
-        )
-
-    columns = [desc[0] for desc in cursor.description]
-    rows = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return {"events": [dict(zip(columns,row)) for row in rows]}
 
 
 @events_router.get("/{event_id}")
-def get_event(event_id: int):
-    """ Returns single event by id, including venue information.
+def get_event(event_id: int) -> dict[str, dict]:
+    """ Find event information for the given event_id, including:
+    title, description, start and end times and venue information
+    
+    Parameters:
+    event_id (int): id of the event to be returned
+
+    Returns:
+    event information as JSON string
+
     Returns status code 400 if id is not a valid integer.
     """
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-            """
-            SELECT
-                e.id
-                , e.title
-                , e.description
-                , e.starts_at
-                , e.ends_at
-                , v.name as location
-                , v.address
-                , v.capacity
-                , e.created_at
-            FROM events e
-            INNER JOIN venues v ON e.venue_id = v.id
-            WHERE e.id = %s
-            """,
-            (event_id,)
-        )
-    row = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    event = select_single_event(event_id)
 
-    if row is None:
+    if event is None:
         raise HTTPException(
             status_code = 404,
             detail = {"code": "NOT_FOUND", "message": "Journey not found"}
         )
 
-    return {"event": {
-                "id": row[0]
-                , "title": row[1]
-                , "description": row[2]
-                , "starts_at": row[3]
-                , "ends_at": row[4]
-                , "location": row[5]
-                , "address": row[6]
-                , "capacity": row[7]
-                , "created_at": row[8]
-            }
-        }
+    return {"event": event}
