@@ -5,11 +5,16 @@ The seed function is responsible for 3 things:
     3. Inserting the test data
 """
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from db.load_data import load_json_data
 from db.users import *
 from db.venues import *
 from db.events import *
 from db.rsvps import *
+
 
 directory = "test_data" if os.getenv("ENV", "development") == "test" else "data"
 
